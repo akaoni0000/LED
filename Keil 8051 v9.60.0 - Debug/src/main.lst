@@ -1,14 +1,14 @@
-C51 COMPILER V9.60.0.0   MAIN                                                              10/04/2024 19:08:51 PAGE 1   
+C51 COMPILER V9.60.0.0   MAIN                                                              10/10/2024 15:03:46 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE MAIN
 OBJECT MODULE PLACED IN .\src\main.OBJ
 COMPILER INVOKED BY: C:\SiliconLabs\SimplicityStudio\v5\developer\toolchains\keil_8051\9.60\BIN\C51.exe C:\Users\Yoshida
-                    -_Lab\SimplicityStudio\v5_workspace\temperature_measurement\src\main.c OMF2 SMALL DEBUG OBJECTEXTEND ROM(LARGE) WARNINGLE
-                    -VEL(2) FLOATFUZZY(3) OPTIMIZE(8,SPEED) DEFINE(DEBUG=1) INTVECTOR(0X0000) INTPROMOTE INCDIR(C:\Users\Yoshida_Lab\Simplici
-                    -tyStudio\v5_workspace\temperature_measurement\inc;C:/SiliconLabs/SimplicityStudio/v5/developer/sdks/8051/v4.3.1//Device/
-                    -shared/si8051Base;C:/SiliconLabs/SimplicityStudio/v5/developer/sdks/8051/v4.3.1//Device/EFM8SB1/inc) PRINT(.\src\main.ls
-                    -t) COND PAGEWIDTH(120) PAGELENGTH(65) OBJECT(.\src\main.OBJ)
+                    -_Lab\SimplicityStudio\v5_workspace\ADC\src\main.c OMF2 SMALL DEBUG OBJECTEXTEND ROM(LARGE) WARNINGLEVEL(2) FLOATFUZZY(3)
+                    - OPTIMIZE(8,SPEED) DEFINE(DEBUG=1) INTVECTOR(0X0000) INTPROMOTE INCDIR(C:\Users\Yoshida_Lab\SimplicityStudio\v5_workspac
+                    -e\ADC\inc;C:/SiliconLabs/SimplicityStudio/v5/developer/sdks/8051/v4.3.1//Device/shared/si8051Base;C:/SiliconLabs/Simplic
+                    -ityStudio/v5/developer/sdks/8051/v4.3.1//Device/EFM8SB1/inc) PRINT(.\src\main.lst) COND PAGEWIDTH(120) PAGELENGTH(65) OB
+                    -JECT(.\src\main.OBJ)
 
 line level    source
 
@@ -22,127 +22,233 @@ line level    source
    8          int send_data[3];
    9          int ms;
   10          int i;
-  11          uint8_t slave;
-  12          uint8_t send_data1;
-  13          uint8_t send_data2;
-  14          uint8_t max_count;
-  15          uint8_t receive_data_first;
-  16          uint8_t receive_data_second;
-  17          
-  18          void delay_ms (ms);
-  19          void smbus0 (slave);//スレイブアドレスを送るだけ、読み込み用
-  20          void smbus1 (slave,send_data1);//スレイブアドレスに加えて1つデータを送る
-  21          void smbus2 (slave,send_data1, send_data2);//スレイブアドレスに加えて2つデータを送る
-  22          void LCD_Init(void);//LCDの設定をする
-  23          void LCD_Data(void);//LCDにデータを送る
-  24          
-  25          void SiLabs_Startup (void) {}
-  26          int main (void)
-  27          {
-  28   1              enter_DefaultMode_from_RESET();
-  29   1              enter_Mode2_from_DefaultMode();
-  30   1              LCD_Init();
-  31   1      
-  32   1              while(1){
-  33   2                  smbus1(0x90, 0x00); //2つデータを送信
-  34   2                  smbus0(0x91); //1つデータを送信
-  35   2            LCD_Data();
-  36   2              }
-  37   1      }
-  38          
-  39          void smbus0 (slave)
-  40          {
-  41   1        send_data[0] = slave;
-  42   1        max_count = 0;
-  43   1        SMB0CN0_STA = 1;
-  44   1        delay_ms(10);
-  45   1      }
-  46          
-  47          void smbus1 (slave, send_data1)
-  48          {
-  49   1        send_data[0] = slave;
-  50   1        send_data[1] = send_data1;
-  51   1        max_count = 1;
-C51 COMPILER V9.60.0.0   MAIN                                                              10/04/2024 19:08:51 PAGE 2   
+  11          float reference_voltage;//基準電圧
+  12          float result_voltage;//測定結果の電圧
+  13          int integer_part;//整数部分
+  14          float fractional_part;//小数部分
+  15          float sum_voltage;//測定結果の電圧の合計値
+  16          float result;//AD変換値を電圧にした値
+  17          int digit;
+  18          uint8_t slave;
+  19          uint8_t send_data1;
+  20          uint8_t send_data2;
+  21          uint8_t max_count;
+  22          uint8_t receive_data_first;
+  23          uint8_t receive_data_second;
+  24          uint32_t ADC_receive_data;
+  25          
+  26          void delay_ms (ms);
+  27          void smbus0 (slave);//スレイブアドレスを送るだけ、読み込み用
+  28          void smbus1 (slave,send_data1);//スレイブアドレスに加えて1つデータを送る
+  29          void smbus2 (slave,send_data1, send_data2);//スレイブアドレスに加えて2つデータを送る
+  30          void LCD_Init(void);//LCDの設定をする
+  31          void LCD_Data(void);//LCDにデータを送る
+  32          void LCD_Integer_Data(integer);//整数をLCDに表示
+  33          void ADC_Init(void);//AD変換の設定をする
+  34          void ADC_Data(void);//AD変換を実行
+  35          
+  36          void SiLabs_Startup (void) {}
+  37          int main (void)
+  38          {
+  39   1              enter_DefaultMode_from_RESET();
+  40   1              enter_Mode2_from_DefaultMode();
+  41   1              LCD_Init();
+  42   1              ADC_Init();
+  43   1      
+  44   1              REF0CN = 0x08; //基準電圧を変更できる
+  45   1              reference_voltage = 3.3;//基準電圧の値 3.3v
+  46   1      
+  47   1              while(1){
+  48   2                 //smbus2(0x7C, 0x00, 0x0C);//ディスプレイオン
+  49   2                 //smbus2(0x7C, 0x00, 0x31);
+  50   2           //smbus2(0x7C, 0x00, 0x70);
+  51   2      
+C51 COMPILER V9.60.0.0   MAIN                                                              10/10/2024 15:03:46 PAGE 2   
 
-  52   1        SMB0CN0_STA = 1;
-  53   1        delay_ms(10);
-  54   1      }
-  55          
-  56          void smbus2 (slave, send_data1, send_data2)
-  57          {
-  58   1        send_data[0] = slave;
-  59   1        send_data[1] = send_data1;
-  60   1        send_data[2] = send_data2;
-  61   1        max_count = 2;
-  62   1        SMB0CN0_STA = 1;
-  63   1        delay_ms(10);
-  64   1      }
-  65          
-  66          void LCD_Init(){
-  67   1        smbus2(0x7C, 0x00, 0x38);
-  68   1        smbus2(0x7C, 0x00, 0x39);
-  69   1        smbus2(0x7C, 0x00, 0x14);
-  70   1        smbus2(0x7C, 0x00, 0x53);
-  71   1        smbus2(0x7C, 0x00, 0x73);
-  72   1        smbus2(0x7C, 0x00, 0x6C);
-  73   1        smbus2(0x7C, 0x00, 0x0C);
-  74   1        smbus2(0x7C, 0x00, 0x01);
-  75   1      }
-  76          
-  77          void LCD_Data(){
-  78   1        smbus2(0x7C, 0x00, 0x80);//場所の指定
-  79   1        for(i = 7; i >= 0; i--) {
-  80   2            char receive_data_bit =(receive_data_first>>i) & 1;
-  81   2            if(receive_data_bit == 0){
-  82   3                smbus2(0x7C, 0x40, 0x30);//文字コード 0
-  83   3            }
-  84   2            else{
-  85   3                smbus2(0x7C, 0x40, 0x31);//文字コード 1
-  86   3            }
-  87   2        }
-  88   1      
-  89   1        for(i = 7; i >= 0; i--) {
-  90   2            char receive_data_bit =(receive_data_second>>i) & 1;
-  91   2            if(receive_data_bit == 0){
-  92   3                smbus2(0x7C, 0x40, 0x30);//文字コード
-  93   3            }
-  94   2            else{
-  95   3                smbus2(0x7C, 0x40, 0x31);//文字コード
-  96   3            }
-  97   2         }
-  98   1      }
-  99          
- 100          void delay_ms (ms)
- 101          {
- 102   1         TCON &= ~0x30;                      // Stop Timer0; Clear TCON_TF0
- 103   1         TMOD &= ~0x0f;                      // 16-bit free run mode
- 104   1         TMOD |=  0x01;
- 105   1      
- 106   1         CKCON0 |= 0x04;                      // Timer0 counts SYSCLKs
- 107   1      
- 108   1         while (ms) {
- 109   2            TCON_TR0 = 0;                         // Stop Timer0
- 110   2            TH0 = ((-24500000/1000) >> 8);     // Overflow in 1ms
- 111   2            TL0 = ((-24500000/1000) & 0xFF);
- 112   2            TCON_TF0 = 0;                         // Clear overflow indicator
- 113   2            TCON_TR0 = 1;                         // Start Timer0
- 114   2            while (!TCON_TF0);                    // Wait for overflow
-C51 COMPILER V9.60.0.0   MAIN                                                              10/04/2024 19:08:51 PAGE 3   
+  52   2      
+  53   2                 ADC_Data();//AD変換を実行
+  54   2                 smbus2(0x7C, 0x00, 0x80);//場所の指定
+  55   2      
+  56   2                 integer_part = (int)result;//AD変換結果の整数部分
+  57   2                 LCD_Integer_Data(integer_part);//整数部分を出力
+  58   2                 smbus2(0x7C, 0x40, 0x2E);//小数点を出力
+  59   2      
+  60   2                 fractional_part = result-integer_part;
+  61   2                 for(i=1;i<=3;i++){
+  62   3                     fractional_part*= 10;
+  63   3                     digit = (int)fractional_part;
+  64   3                     LCD_Integer_Data(digit);//整数部分を出力
+  65   3                     fractional_part-= digit;
+  66   3                 }
+  67   2                 //smbus2(0x7C, 0x00, 0x08);//ディスプレイオン
+  68   2                 //delay_ms(1000);
+  69   2              }
+  70   1      }
+  71          
+  72          void smbus0 (slave)
+  73          {
+  74   1        send_data[0] = slave;
+  75   1        max_count = 0;
+  76   1        SMB0CN0_STA = 1;
+  77   1        delay_ms(10);
+  78   1      }
+  79          
+  80          void smbus1 (slave, send_data1)
+  81          {
+  82   1        send_data[0] = slave;
+  83   1        send_data[1] = send_data1;
+  84   1        max_count = 1;
+  85   1        SMB0CN0_STA = 1;
+  86   1        delay_ms(10);
+  87   1      }
+  88          
+  89          void smbus2 (slave, send_data1, send_data2)
+  90          {
+  91   1        send_data[0] = slave;
+  92   1        send_data[1] = send_data1;
+  93   1        send_data[2] = send_data2;
+  94   1        max_count = 2;
+  95   1        SMB0CN0_STA = 1;
+  96   1        delay_ms(10);
+  97   1      }
+  98          
+  99          void LCD_Init(){
+ 100   1      //  smbus2(0x7C, 0x00, 0x38);
+ 101   1      //  smbus2(0x7C, 0x00, 0x39);
+ 102   1      //  smbus2(0x7C, 0x00, 0x14);
+ 103   1      //  smbus2(0x7C, 0x00, 0x53);
+ 104   1      //  smbus2(0x7C, 0x00, 0x73);
+ 105   1      //  smbus2(0x7C, 0x00, 0x6C);
+ 106   1      //  smbus2(0x7C, 0x00, 0x0C);//ディスプレイオン
+ 107   1      //  smbus2(0x7C, 0x00, 0x01);
+ 108   1      
+ 109   1        smbus2(0x7C, 0x00, 0x38);
+ 110   1        smbus2(0x7C, 0x00, 0x39);
+ 111   1        smbus2(0x7C, 0x00, 0x14);
+ 112   1        smbus2(0x7C, 0x00, 0x73);
+ 113   1        smbus2(0x7C, 0x00, 0x56);
+ 114   1        smbus2(0x7C, 0x00, 0x6C);
+C51 COMPILER V9.60.0.0   MAIN                                                              10/10/2024 15:03:46 PAGE 3   
 
- 115   2            ms--;                            // Update ms counter
- 116   2         }
- 117   1      
- 118   1         TCON_TR0 = 0;                            // Stop Timer0
+ 115   1        smbus2(0x7C, 0x00, 0x38);
+ 116   1        smbus2(0x7C, 0x00, 0x01);
+ 117   1        smbus2(0x7C, 0x00, 0x0C);//ディスプレイオン
+ 118   1        //smbus2(0x7C, 0x00, 0x01);
  119   1      }
+ 120          
+ 121          void LCD_Data(){
+ 122   1        smbus2(0x7C, 0x00, 0x80);//場所の指定
+ 123   1        for(i = 7; i >= 0; i--) {
+ 124   2            char receive_data_bit =(receive_data_first>>i) & 1;
+ 125   2            if(receive_data_bit == 0){
+ 126   3                smbus2(0x7C, 0x40, 0x30);//文字コード 0
+ 127   3            }
+ 128   2            else{
+ 129   3                smbus2(0x7C, 0x40, 0x31);//文字コード 1
+ 130   3            }
+ 131   2        }
+ 132   1      
+ 133   1        for(i = 7; i >= 0; i--) {
+ 134   2            char receive_data_bit =(receive_data_second>>i) & 1;
+ 135   2            if(receive_data_bit == 0){
+ 136   3                smbus2(0x7C, 0x40, 0x30);//文字コード
+ 137   3            }
+ 138   2            else{
+ 139   3                smbus2(0x7C, 0x40, 0x31);//文字コード
+ 140   3            }
+ 141   2         }
+ 142   1      }
+ 143          
+ 144          void LCD_Integer_Data(integer){
+ 145   1        switch (integer){
+ 146   2          case 0:
+ 147   2            smbus2(0x7C, 0x40, 0x30);
+ 148   2            break;
+ 149   2          case 1:
+ 150   2            smbus2(0x7C, 0x40, 0x31);
+ 151   2            break;
+ 152   2          case 2:
+ 153   2            smbus2(0x7C, 0x40, 0x32);
+ 154   2            break;
+ 155   2          case 3:
+ 156   2            smbus2(0x7C, 0x40, 0x33);
+ 157   2            break;
+ 158   2          case 4:
+ 159   2            smbus2(0x7C, 0x40, 0x34);
+ 160   2            break;
+ 161   2          case 5:
+ 162   2            smbus2(0x7C, 0x40, 0x35);
+ 163   2            break;
+ 164   2          case 6:
+ 165   2            smbus2(0x7C, 0x40, 0x36);
+ 166   2            break;
+ 167   2          case 7:
+ 168   2            smbus2(0x7C, 0x40, 0x37);
+ 169   2            break;
+ 170   2          case 8:
+ 171   2            smbus2(0x7C, 0x40, 0x38);
+ 172   2            break;
+ 173   2          case 9:
+ 174   2            smbus2(0x7C, 0x40, 0x39);
+ 175   2            break;
+ 176   2        }
+ 177   1      }
+C51 COMPILER V9.60.0.0   MAIN                                                              10/10/2024 15:03:46 PAGE 4   
+
+ 178          
+ 179          void ADC_Init(){
+ 180   1         //ピン設定
+ 181   1         ADC0MX = ADC0MX_ADC0MX__ADC0P12;
+ 182   1      
+ 183   1         //ビットモード設定
+ 184   1         ADC0CF = ADC0CF_AD8BE__NORMAL | ADC0CF_ADGN__GAIN_1 | (0x02 << ADC0CF_ADSC__SHIFT)
+ 185   1             | ADC0CF_ADTM__TRACK_NORMAL;
+ 186   1      
+ 187   1         //AD変換有効設定
+ 188   1         ADC0CN0 = 0x80;
+ 189   1      }
+ 190          
+ 191          void ADC_Data(){
+ 192   1        sum_voltage = 0;
+ 193   1        for(i=1;i<=1;i++){
+ 194   2           ADC0CN0_ADBUSY=1;//AD変換開始
+ 195   2           while(ADC0CN0_ADBUSY){}//AD変換が終わるまでまつ
+ 196   2           ADC_receive_data = ADC0;//AD変換の結果を代入
+ 197   2           result_voltage = reference_voltage*ADC_receive_data/1023;//電圧値にする
+ 198   2           sum_voltage+=result_voltage;
+ 199   2        }
+ 200   1      
+ 201   1        result = sum_voltage/1;
+ 202   1      }
+ 203          
+ 204          void delay_ms (ms)
+ 205          {
+ 206   1         TCON &= ~0x30;                      // Stop Timer0; Clear TCON_TF0
+ 207   1         TMOD &= ~0x0f;                      // 16-bit free run mode
+ 208   1         TMOD |=  0x01;
+ 209   1      
+ 210   1         CKCON0 |= 0x04;                      // Timer0 counts SYSCLKs
+ 211   1      
+ 212   1         while (ms) {
+ 213   2            TCON_TR0 = 0;                         // Stop Timer0
+ 214   2            TH0 = ((-24500000/1000) >> 8);     // Overflow in 1ms
+ 215   2            TL0 = ((-24500000/1000) & 0xFF);
+ 216   2            TCON_TF0 = 0;                         // Clear overflow indicator
+ 217   2            TCON_TR0 = 1;                         // Start Timer0
+ 218   2            while (!TCON_TF0);                    // Wait for overflow
+ 219   2            ms--;                            // Update ms counter
+ 220   2         }
+ 221   1      
+ 222   1         TCON_TR0 = 0;                            // Stop Timer0
+ 223   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    339    ----
+   CODE SIZE        =    761    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =     16       1
+   DATA SIZE        =     44       1
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
    EDATA SIZE       =   ----    ----

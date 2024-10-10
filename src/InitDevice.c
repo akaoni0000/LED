@@ -29,6 +29,7 @@ extern void enter_DefaultMode_from_RESET(void) {
 	CLOCK_0_enter_DefaultMode_from_RESET();
 	// Restore the SFRPAGE
 	SFRPAGE = SFRPAGE_save;
+
 	// [Config Calls]$
 
 
@@ -180,6 +181,12 @@ extern void PORTS_1_enter_Mode2_from_DefaultMode(void) {
 	P1MDOUT = P1MDOUT_B0__OPEN_DRAIN | P1MDOUT_B1__PUSH_PULL | P1MDOUT_B2__OPEN_DRAIN
 		 | P1MDOUT_B3__OPEN_DRAIN | P1MDOUT_B4__OPEN_DRAIN | P1MDOUT_B5__OPEN_DRAIN
 		 | P1MDOUT_B6__OPEN_DRAIN | P1MDOUT_B7__OPEN_DRAIN;
+
+
+	//1.4ピンをアナログ入力にする
+	P1MDIN = P1MDIN_B0__DIGITAL | P1MDIN_B1__DIGITAL | P1MDIN_B2__DIGITAL
+	     | P1MDIN_B3__DIGITAL | P1MDIN_B4__ANALOG | P1MDIN_B5__DIGITAL
+	     | P1MDIN_B6__DIGITAL | P1MDIN_B7__DIGITAL;
 	// [P1MDOUT - Port 1 Output Mode]$
 
 	// $[P1MDIN - Port 1 Input Mode]
@@ -533,4 +540,8 @@ extern void PORTS_0_enter_Mode2_from_DefaultMode(void) {
 
 
 }
+
+
+
+
 
