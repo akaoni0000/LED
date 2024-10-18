@@ -45,11 +45,6 @@ int main (void)
 	reference_voltage = 3.3;//基準電圧の値 3.3v
 
 	while(1){
-	   //smbus2(0x7C, 0x00, 0x0C);//ディスプレイオン
-	   //smbus2(0x7C, 0x00, 0x31);
-     //smbus2(0x7C, 0x00, 0x70);
-
-
 	   ADC_Data();//AD変換を実行
 	   smbus2(0x7C, 0x00, 0x80);//場所の指定
 
@@ -64,8 +59,6 @@ int main (void)
 	       LCD_Integer_Data(digit);//整数部分を出力
 	       fractional_part-= digit;
 	   }
-	   //smbus2(0x7C, 0x00, 0x08);//ディスプレイオン
-	   //delay_ms(1000);
 	}
 }
 
@@ -97,15 +90,6 @@ void smbus2 (slave, send_data1, send_data2)
 }
 
 void LCD_Init(){
-//  smbus2(0x7C, 0x00, 0x38);
-//  smbus2(0x7C, 0x00, 0x39);
-//  smbus2(0x7C, 0x00, 0x14);
-//  smbus2(0x7C, 0x00, 0x53);
-//  smbus2(0x7C, 0x00, 0x73);
-//  smbus2(0x7C, 0x00, 0x6C);
-//  smbus2(0x7C, 0x00, 0x0C);//ディスプレイオン
-//  smbus2(0x7C, 0x00, 0x01);
-
   smbus2(0x7C, 0x00, 0x38);
   smbus2(0x7C, 0x00, 0x39);
   smbus2(0x7C, 0x00, 0x14);
@@ -115,7 +99,6 @@ void LCD_Init(){
   smbus2(0x7C, 0x00, 0x38);
   smbus2(0x7C, 0x00, 0x01);
   smbus2(0x7C, 0x00, 0x0C);//ディスプレイオン
-  //smbus2(0x7C, 0x00, 0x01);
 }
 
 void LCD_Data(){
@@ -190,7 +173,7 @@ void ADC_Init(){
 
 void ADC_Data(){
   sum_voltage = 0;
-  for(i=1;i<=1;i++){
+  for(i=1;i<=128;i++){
      ADC0CN0_ADBUSY=1;//AD変換開始
      while(ADC0CN0_ADBUSY){}//AD変換が終わるまでまつ
      ADC_receive_data = ADC0;//AD変換の結果を代入
@@ -198,7 +181,7 @@ void ADC_Data(){
      sum_voltage+=result_voltage;
   }
 
-  result = sum_voltage/1;
+  result = sum_voltage/128;
 }
 
 void delay_ms (ms)
