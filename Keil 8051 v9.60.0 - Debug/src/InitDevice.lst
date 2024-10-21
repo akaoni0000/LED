@@ -1,12 +1,12 @@
-C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/09/2024 17:34:25 PAGE 1   
+C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/21/2024 19:09:10 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE INITDEVICE
 OBJECT MODULE PLACED IN .\src\InitDevice.OBJ
 COMPILER INVOKED BY: C:\SiliconLabs\SimplicityStudio\v5\developer\toolchains\keil_8051\9.60\BIN\C51.exe C:\Users\Yoshida
-                    -_Lab\SimplicityStudio\v5_workspace\ADC\src\InitDevice.c OMF2 SMALL DEBUG OBJECTEXTEND ROM(LARGE) WARNINGLEVEL(2) FLOATFU
+                    -_Lab\SimplicityStudio\v5_workspace\LED\src\InitDevice.c OMF2 SMALL DEBUG OBJECTEXTEND ROM(LARGE) WARNINGLEVEL(2) FLOATFU
                     -ZZY(3) OPTIMIZE(8,SPEED) DEFINE(DEBUG=1) INTVECTOR(0X0000) INTPROMOTE INCDIR(C:\Users\Yoshida_Lab\SimplicityStudio\v5_wo
-                    -rkspace\ADC\inc;C:/SiliconLabs/SimplicityStudio/v5/developer/sdks/8051/v4.3.1//Device/shared/si8051Base;C:/SiliconLabs/S
+                    -rkspace\LED\inc;C:/SiliconLabs/SimplicityStudio/v5/developer/sdks/8051/v4.3.1//Device/shared/si8051Base;C:/SiliconLabs/S
                     -implicityStudio/v5/developer/sdks/8051/v4.3.1//Device/EFM8SB1/inc) PRINT(.\src\InitDevice.lst) COND PAGEWIDTH(120) PAGEL
                     -ENGTH(65) OBJECT(.\src\InitDevice.OBJ)
 
@@ -63,7 +63,7 @@ line level    source
   49   1              //     function normally while the system controller is in Idle Mode.)
   50   1              // ECF (PCA Counter/Timer Overflow Interrupt Enable) = OVF_INT_DISABLED
   51   1              //     (Disable the CF interrupt.)
-C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/09/2024 17:34:25 PAGE 2   
+C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/21/2024 19:09:10 PAGE 2   
 
   52   1              // WDTE (Watchdog Timer Enable) = DISABLED (Disable Watchdog Timer.)
   53   1              // WDLCK (Watchdog Timer Lock) = UNLOCKED (Watchdog Timer Enable
@@ -128,7 +128,7 @@ line level    source
  112   1      }
  113          
  114          //================================================================================
-C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/09/2024 17:34:25 PAGE 3   
+C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/21/2024 19:09:10 PAGE 3   
 
  115          // CLOCK_0_enter_DefaultMode_from_RESET
  116          //================================================================================
@@ -193,7 +193,7 @@ line level    source
  175   1              //     drain.)
  176   1              // B6 (Port 1 Bit 6 Output Mode) = OPEN_DRAIN (P1.6 output is open-
  177   1              //     drain.)
-C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/09/2024 17:34:25 PAGE 4   
+C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/21/2024 19:09:10 PAGE 4   
 
  178   1              // B7 (Port 1 Bit 7 Output Mode) = OPEN_DRAIN (P1.7 output is open-
  179   1              //     drain.)
@@ -232,7 +232,7 @@ line level    source
  212   1              //     crossbar.)
  213   1              */
  214   1              P1SKIP = P1SKIP_B0__SKIPPED | P1SKIP_B1__SKIPPED | P1SKIP_B2__SKIPPED
- 215   1                       | P1SKIP_B3__NOT_SKIPPED | P1SKIP_B4__NOT_SKIPPED | P1SKIP_B5__NOT_SKIPPED
+ 215   1                       | P1SKIP_B3__NOT_SKIPPED | P1SKIP_B4__SKIPPED | P1SKIP_B5__NOT_SKIPPED
  216   1                       | P1SKIP_B6__NOT_SKIPPED | P1SKIP_B7__NOT_SKIPPED;
  217   1              // [P1SKIP - Port 1 Skip]$
  218   1      
@@ -258,7 +258,7 @@ line level    source
  238   1              //     Pullups enabled (except for Ports whose I/O are configured for analog
  239   1              //     mode).)
  240   1              // XBARE (Crossbar Enable) = ENABLED (Crossbar enabled.)
-C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/09/2024 17:34:25 PAGE 5   
+C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/21/2024 19:09:10 PAGE 5   
 
  241   1              */
  242   1              XBR2 = XBR2_WEAKPUD__PULL_UPS_ENABLED | XBR2_XBARE__ENABLED;
@@ -323,7 +323,7 @@ line level    source
  301   1              //Restore Timer Configuration
  302   1              TCON = TCON_save;
  303   1      
-C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/09/2024 17:34:25 PAGE 6   
+C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/21/2024 19:09:10 PAGE 6   
 
  304   1              // [Timer Restoration]$
  305   1      
@@ -388,7 +388,7 @@ line level    source
  364   1      }
  365          
  366          //================================================================================
-C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/09/2024 17:34:25 PAGE 7   
+C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/21/2024 19:09:10 PAGE 7   
 
  367          // TIMER_SETUP_0_enter_Mode2_from_DefaultMode
  368          //================================================================================
@@ -453,7 +453,7 @@ line level    source
  427   1                       | SMB0CF_ENSMB__ENABLED | SMB0CF_SMBFTE__FREE_TO_ENABLED | SMB0CF_SMBTOE__SCL_TO_ENABLED
  428   1                       | SMB0CF_EXTHOLD__ENABLED | SMB0CF_INH__SLAVE_DISABLED;
  429   1              // [SMB0CF - SMBus 0 Configuration]$
-C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/09/2024 17:34:25 PAGE 8   
+C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/21/2024 19:09:10 PAGE 8   
 
  430   1      
  431   1      
@@ -518,7 +518,7 @@ line level    source
  490   1              // $[EIP2 - Extended Interrupt Priority 2]
  491   1              // [EIP2 - Extended Interrupt Priority 2]$
  492   1      
-C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/09/2024 17:34:25 PAGE 9   
+C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/21/2024 19:09:10 PAGE 9   
 
  493   1      
  494   1      }
@@ -583,7 +583,7 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----       2
-C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/09/2024 17:34:25 PAGE 10  
+C51 COMPILER V9.60.0.0   INITDEVICE                                                        10/21/2024 19:09:10 PAGE 10  
 
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----

@@ -25,7 +25,7 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := ADC
+BUILD_ARTIFACT_NAME := LED
 BUILD_ARTIFACT_EXTENSION := omf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
@@ -36,24 +36,24 @@ BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ART
 all: main-build
 
 # Main-build Target
-main-build: ADC.omf
+main-build: LED.omf
 
 # Tool invocations
-ADC.omf: echo_path $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
+LED.omf: echo_path $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Keil 8051 Linker'
-	LX51 "@ADC.lnp" || $(RC)
+	LX51 "@LED.lnp" || $(RC)
 	@echo 'Finished building target: $@'
 
 # Change from all upper case to the expected case
-	@-mv "ADC.OMF.CRBUILD" "$@"
+	@-mv "LED.OMF.CRBUILD" "$@"
 
-# Generate hex file: ADC.hex
-	@Ohx51 "ADC.omf" "HEXFILE (ADC.hex)" "H386" 2>&1 >/dev/null
+# Generate hex file: LED.hex
+	@Ohx51 "LED.omf" "HEXFILE (LED.hex)" "H386" 2>&1 >/dev/null
 
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS) ADC.omf
+	-$(RM) $(EXECUTABLES)$(OBJS) LED.omf
 	-@echo ' '
 
 .PHONY: all clean dependents main-build
