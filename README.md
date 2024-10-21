@@ -5,11 +5,11 @@ LCD・・・I2C接続薄型16文字×2行液晶、型番：AQM1602XA-RN-GBW<br>
 
 電圧値のAD変換(10ビット)を行い、基準電圧の値から正規の電圧値に変換したものをLCDに表示する。(4桁)
 
-##回路図
+## 回路図
 ![スクリーンショット 2024-10-21 18 15 38](https://github.com/user-attachments/assets/514111c7-dcf9-450b-8b47-c96e3231f8fb)
 ![スクリーンショット 2024-10-21 18 15 46](https://github.com/user-attachments/assets/869725db-dea2-4b5f-93bd-ef1a134808f8)
 
-##AD変換に使用できるピンについて
+## AD変換に使用できるピンについて
 ![スクリーンショット 2024-10-21 18 19 03](https://github.com/user-attachments/assets/15477ceb-0472-402c-af9c-a6974fd962df)
 
 ## LCDとのI2C
